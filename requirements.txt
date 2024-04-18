@@ -1,0 +1,22 @@
+# DO NOT include azure-functions-worker in this file
+# The Python Worker is managed by Azure Functions platform
+# Manually managing azure-functions-worker may cause unexpected issues
+
+azure-functions
+azure-storage-blob
+pyyaml==6.0.1
+monai==1.2.0
+https://download.pytorch.org/whl/cpu-cxx11-abi/torch-2.1.2%2Bcpu.cxx11.abi-cp311-cp311-linux_x86_64.whl#sha256=c74ff2502a89432d3ef9655daca5641862cbb3c52f68e1e391c55971a16a9b9f
+tqdm==4.66.1
+numpy==1.26.3
+simpleitk==2.3.1
+nibabel==5.2.0
+# dataclasses==0.6
+opencv-python==4.9.0.80
+pillow==10.2.0
+pydicom==2.4.4
+rt-utils==1.2.7
+scipy==1.12.0
+pandas==2.2.0
+sendgrid==6.11.0
+https://github.com/bjornah/niftidicomconverter/archive/refs/tags/v1.5.8.tar.gz

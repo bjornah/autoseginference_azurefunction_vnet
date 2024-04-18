@@ -1,0 +1,317 @@
+1:
+- RF mets
+- Pons
+- l_frontal
+- lmedcrblm
+- cerebellar
+- l_pariet
+- r temp
+- Missing3
+- pons
+- r_parietal
+- Rcer
+- RtSupParie
+- lcerebellu
+- ltempocc
+- rmedcrblm
+- Missing4
+- left temp
+- l parietal
+- right temp
+- 4V
+- rf
+- lf front
+- Ltemp
+- L ant t
+- R_ant_temp
+- LM Cereb
+- LfPariet
+- t
+- rperiventr
+- RtFront
+- lmedfrant
+- L Ins 2
+- L inf fl
+- Missing10
+- lt
+- linfantfro
+- R perivent
+- r temp par vol
+- RtTempOcci
+- r_pos_frt
+- R F
+- t3
+- LtPar
+- Left ant temp
+- l gyrectus
+- left front
+- Lfrontal
+- lposttemp
+- RtOcci
+- Rf
+- LtPariet
+- RtThala
+- rfrintal
+- rsupcrblm
+- l_atrial
+- Missing9
+- L frontal
+- r parietal
+- LtPosFront
+- rsupfronta
+- R fr T1
+- rmesoccip
+- L Ins 1
+- lft fronta
+- L mid cere
+- lfrontal
+- lfCerebell
+- Missed tumor3
+- L Post P
+- R parietal
+- rinftemp
+- LfInfeFron
+- locc
+- LtCbl
+- pontine
+- rt front
+- LfFront
+- RtLatCbl
+- RtInfOcc
+- RtCrbell
+- RtCeBL
+- RtCerebell
+- R fr
+- rocciptal
+- rtemp
+- L cso
+- RtParaVerm
+- l_cerebel
+- r-frontal
+- R pfl
+- roccipital
+- L med occ
+- LtTemp
+- Lat R Cere
+- r_cerebell
+- L cerebelu
+- r_front
+- R lat frontal
+- rtparietal (t1)
+- lsupfronta
+- right fron
+- R F lat
+- RCcc
+- l_temp_MR
+- L par
+- midbrain
+- Missing5
+- temp
+- R Cereb
+- R med frontal
+- lmesfrpost
+- R sup med frontal
+- L Temp
+- llatcrblm
+- R cerebellar 2
+- lt crblm
+- L occ
+- LSylvian
+- Missing7
+- r_occip
+- Rcereblat
+- rcerbellum
+- L cerebellar
+- Missed tumor2
+- r_frontal
+- t2
+- lcrblm
+- lf pariet
+- R Ch
+- RtAntCbl
+- mesen
+- LA Cereb
+- runcus
+- T
+- LtOcci
+- Lsuppariet
+- rtempsupfi
+- LfTemp
+- R Cerebel
+- Missing2
+- Left post central
+- occ
+- R temp
+- ltemp
+- Rcerebinf
+- L Oc.
+- rfrontal
+- R lat cblr
+- RpostParie
+- RtCbl
+- brain stem
+- lsupcrblm
+- Missed tumor
+- r frontal
+- lmesinffro
+- R cerebellar
+- IV
+- linffronta
+- l occ
+- Rmedcrblm
+- l_cerebell
+- R Post P
+- lantfronta
+- R fal
+- rcrblm
+- RtMesFront
+- Med R Cere
+- leftmestemp
+- R Occ
+- L Occ
+- LF
+- LfCerPedun
+- LfParCalv
+- R crbm
+- LtParaCbl
+- L sup cblr
+- R frontal
+- l vermis
+- RF
+- Rfrontal
+- LfPostPari
+- LP cereb
+- Missing_tumor
+- LtCerebell
+- BS lesion
+- L  thalamus
+- linterhemi
+- L temp
+- loccipital
+- linfpariet
+- RFront
+- R p at
+- Missing
+- rt cerebel
+- R lat2 cblr
+- r_pos-frt
+- l_parietal
+- Lcer
+- Missing8
+- ct
+- R Med
+- lf
+- RtPons
+- LefOcc
+- r cerebell
+- right t
+- RtPrecent
+- lpv_cerebe
+- RtTemp
+- cerebelum
+- Missing6
+- l cerebell
+- lparietal
+- lpostfront
+- LtCebl
+- LtFront
+- R cerebel
+- r_BG
+- rsupcrbllm
+- l post fro
+- lperiatria
+- R pm fl
+- r_mes_par
+- ltemp/par
+- RCortCrblm
+- R ant fl
+- RLatTemp
+- r_cerebel
+- R Frontal
+- R Mes Pari
+- L Occ 1
+- Missing1
+- L Occ 2
+- l_parafalc
+- RtParietal
+- l-front
+- lpar
+- RtSupOcc
+- L post t
+- r_precent
+- r_occipita
+- Vermis
+- Tumor1
+- Tumor2
+- Tumor3
+- Tumor4
+- Tumor5
+- Tumor6
+- Tumor7
+- Tumor8
+- Tumor9
+- Tumor10
+- Tumor11
+- Tumor12
+- Tumor13
+- Tumor14
+- Tumor15
+- Tumor16
+- Tumor17
+- Tumor18
+- Tumor19
+- Tumor20
+- Tumor21
+- Tumor22
+- Tumor23
+- Tumor24
+- Tumor25
+- Tumor26
+- Tumor27
+- Tumor28
+- Tumor29
+- Tumor30
+- Tumor31
+- Tumor32
+- Tumor33
+- Tumor34
+- Tumor35
+- Tumor36
+- Tumor37
+- Tumor38
+- Tumor39
+- Tumor40
+- GTV1
+- GTV2
+- GTV3
+- GTV4
+- GTV5
+- GTV6
+- GTV7
+- GTV8
+- GTV9
+- GTV10
+- GTV11
+- GTV12
+- GTV13
+- GTV14
+- GTV15
+- GTV16
+- GTV17
+- GTV18
+- GTV19
+- GTV20
+- GTV21
+- GTV22
+- GTV23
+- GTV24
+- GTV25
+- GTV26
+- GTV27
+- GTV28
+- GTV29
+- GTV30
+- None
+2:
+- External
+- '*Skull'
