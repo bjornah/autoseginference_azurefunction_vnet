@@ -1,11 +1,9 @@
 import os
-import logging
 import json
 import yaml
 import tempfile
 import glob
 import zipfile
-import sendgrid
 
 import azure.functions as func
 
@@ -15,13 +13,12 @@ from pathlib import Path
 from tqdm import tqdm
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, generate_blob_sas, BlobSasPermissions
 from datetime import datetime, timedelta
-from sendgrid.helpers.mail import Mail, Email, To, Content
 
 import logging
-logging.Logger.root.level = 10
 
-logger = logging.getLogger("azure.core.pipeline.policies.http_logging_policy")
-logger.setLevel(logging.WARNING)
+import logger_config
+
+logger = logging.getLogger('local_logger')
 
 app = func.FunctionApp()
 
@@ -96,49 +93,11 @@ def verify_files(blob_service_client, container_name, file_paths):
             missing_files.append(fp)
 
     if not all_files_exist:
-        logging.error(f"The following files are missing from the blob storage: {missing_files}")
+        logger.error(f"The following files are missing from the blob storage: {missing_files}")
         return False
     
-    logging.debug('all files in manifest are uploaded')
+    logger.debug('all files in manifest are uploaded')
     return True
-
-
-def send_completion_email(container_name, blob_name, download_url, recipient_email, expiry_hours=72):
-
-    # connection_string = "your_storage_account_connection_string"
-    # blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-    # sas_token = generate_blob_sas(account_name=account_name,
-    #                               container_name=blob_container_name,
-    #                               blob_name=blob_name,
-    #                               account_key=account_key,
-    #                               permission=BlobSasPermissions(read=True),
-    #                               expiry=datetime.utcnow() + timedelta(hours=24))  # Link expires in 24 hours
-
-    # download_url = f"https://{account_name}.blob.core.windows.net/{blob_container_name}/{blob_name}?{sas_token}"
-
-    # Create the email content
-    message = f"""\
-        Your job is complete. You can download the results at the following link:
-
-        {download_url}
-
-        The link will expire in {expiry_hours} hours."""
-
-    subject = f'Your Data Processing Job is Complete'
-    
-    send_email(recipient_email, subject, message)
-
-def send_email(recipient_email, subject, message):
-    sg = sendgrid.SendGridAPIClient(api_key=os.environ['SendGridToken'])
-    from_email = Email("bjorn.ahlgren@elekta.com")  # Your SendGrid account email or verified sender
-    to_email = To(recipient_email)
-    content = Content("text/plain", message)
-    mail = Mail(from_email, to_email, subject, content)
-    response = sg.client.mail.send.post(request_body=mail.get())
-
-    logging.info(response.status_code)
-    logging.info(response.body)
-    logging.info(response.headers)
 
 def generate_sas_token(container_name, blob_name, account_name, account_key, expiry_hours=72):
     # account_name = os.environ['AzureWebJobsStorageName']
@@ -177,9 +136,9 @@ def delete_uploaded_files(container_name, file_paths, connection_string):
         try:
             blob_client = container_client.get_blob_client(blob=file_path)
             blob_client.delete_blob()
-            logging.info(f"Deleted {file_path}")
+            logger.info(f"Deleted {file_path}")
         except Exception as e:
-            logging.info(f"Error deleting {file_path}: {e}")
+            logger.exception(f"Error deleting {file_path}: {e}")
 
 def ensure_unix_path_separators(path: str) -> str:
     path = path.replace('\\', '/')
@@ -192,13 +151,19 @@ def ensure_unix_path_separators(path: str) -> str:
                                connection="AzureWebJobsStorage") 
 @app.queue_output(arg_name="msg", queue_name="process-queue", connection="AzureWebJobsStorage")
 def blob_trigger(inputblob: func.InputStream, msg: func.Out[str]):
-    logging.info(f"Python blob trigger function processed blob"
-                f"Name: {inputblob.name}"
-                f"Blob Size: {inputblob.length} bytes")
+
     
     # read manifest file as a yml file
     stream = inputblob.read().decode("utf-8")
     manifest = yaml.safe_load(stream)
+
+    LOG_NAME = f'patient_{manifest["patient_ID"]}.log'
+    
+    logger_config.add_file_handler(logger, LOG_NAME)
+
+    logger.info(f"Python blob trigger function processed blob"
+                f"Name: {inputblob.name}"
+                f"Blob Size: {inputblob.length} bytes")
 
     # check that all files have been uploaded before creating a queue message
     connection_string = os.getenv('AzureWebJobsStorage')
@@ -227,9 +192,15 @@ def blob_trigger(inputblob: func.InputStream, msg: func.Out[str]):
         return
     
     if manifest['rtss'] is not None:
-        logging.info('rtss included in manifest')
+        logger.info('rtss included in manifest')
         if not verify_files(blob_service_client, container_name, manifest['rtss']):
             return
+
+    # read from local settings.yml file into dict
+    with open('model_settings.yml') as file:
+        model_settings = yaml.safe_load(file)
+    # add to manifest
+    manifest['model_settings'] = model_settings
 
     # Prepare the message for the queue
     queue_message = json.dumps(manifest)
@@ -242,7 +213,7 @@ def blob_trigger(inputblob: func.InputStream, msg: func.Out[str]):
 #                                connection="AzureWebJobsStorage_PAH") 
 # @app.queue_output(arg_name="msg", queue_name="process-queue", connection="AzureWebJobsStorage") 
 # def blob_trigger_PAH(inputblob: func.InputStream, msg: func.Out[str]):
-#     logging.info(f"Python blob trigger function processed blob"
+#     logger.info(f"Python blob trigger function processed blob"
 #                 f"Name: {inputblob.name}"
 #                 f"Blob Size: {inputblob.length} bytes")
     
@@ -277,7 +248,7 @@ def blob_trigger(inputblob: func.InputStream, msg: func.Out[str]):
 #         return
     
 #     if manifest['rtss'] is not None:
-#         logging.info(f'rtss included in manifest, {manifest["rtss"]}')
+#         logger.info(f'rtss included in manifest, {manifest["rtss"]}')
 #         if not verify_files(blob_service_client, container_name, manifest['rtss']):
 #             return
 
@@ -298,6 +269,10 @@ def queue_trigger(msg: func.QueueMessage):
     connection_string = manifest['connection_string']
     account_name = manifest['account_name']
     account_key = manifest['account_key']
+
+    LOG_NAME = f'patient_{manifest["patient_ID"]}.log'
+
+    logger_config.add_file_handler(logger, LOG_NAME)
 
     # create folder structure for temp files
     base_temp_dir = tempfile.mkdtemp()
@@ -323,26 +298,50 @@ def queue_trigger(msg: func.QueueMessage):
         # re-route paths to rtss in manifest
         manifest['rtss_tmp'] = os.path.join(base_temp_dir, manifest['rtss'])
 
-    logging.info(f'tmp file paths = {glob.glob(f"{base_temp_dir}/**", recursive=True)}')
+    logger.info(f'tmp file paths = {glob.glob(f"{base_temp_dir}/**", recursive=True)}')
     
     manifest['base_temp_dir'] = base_temp_dir
 
-    dl, inference_settings = setup_inference(manifest)
+    inference_settings = setup_inference(manifest)
+
+    do_inference(inference_settings)
 
     DICOM_RTSS_OUTPUT = inference_settings['DICOM_RTSS_OUTPUT']
-    NIFTI_RTSS = inference_settings['NIFTI_RTSS']
+    NIFTI_RTSS_BIN = inference_settings['NIFTI_RTSS_BIN']
+    NIFTI_RTSS_PROB = inference_settings['NIFTI_RTSS_PROB']
+
+    NIFTI_RTSS_BIN_list = inference_settings['NIFTI_RTSS_BIN_list']
+    NIFTI_RTSS_PROB_list = inference_settings['NIFTI_RTSS_PROB_list']
+
+    DICE_PATHS = inference_settings['DICE_PATHS']
+    CALIBRATION_PATHS = inference_settings['CALIBRATION_PATHS']
+
     NIFTI_IMAGE = inference_settings['NIFTI_IMAGE']
     NIFTI_GT = inference_settings['NIFTI_GT']
-    DICE_PATH = inference_settings['DICE_PATH']
-    CALIBRATION_PATH = inference_settings['CALIBRATION_PATH']
+    NIFTI_GT_PROCESSED = inference_settings['NIFTI_GT_PROCESSED']
+    DICE_PATH_FINAL = inference_settings['DICE_PATH_FINAL']
+    CALIBRATION_PATH_FINAL = inference_settings['CALIBRATION_PATH_FINAL']
+    METRICS_CSV_FINAL = inference_settings['METRICS_CSV_FINAL']
 
-    do_inference(dl, inference_settings)
-
-    logging.info(f'successfully performed inference')
+    logger.info(f'successfully performed inference')
 
     
     blob_name = f'{manifest["patient_ID"]}.zip'
-    zip_buffer = create_zip_archive([f for f in [DICOM_RTSS_OUTPUT, NIFTI_IMAGE, NIFTI_RTSS, NIFTI_GT, DICE_PATH, CALIBRATION_PATH] if os.path.exists(f)])
+    zip_buffer = create_zip_archive([f for f in [
+        DICOM_RTSS_OUTPUT,
+        NIFTI_IMAGE, # the processed nifti image
+        NIFTI_RTSS_BIN,
+        NIFTI_RTSS_PROB,
+        # *NIFTI_RTSS_BIN_list,
+        # *NIFTI_RTSS_PROB_list,
+        # *DICE_PATHS,
+        # *CALIBRATION_PATHS,
+        # NIFTI_GT, # the unprocessed GT.
+        NIFTI_GT_PROCESSED,
+        # DICE_PATH_FINAL, # already contained in the metrics csv file
+        # CALIBRATION_PATH_FINAL, # used to check model calibraion. not needed for the user
+        METRICS_CSV_FINAL
+        ] if os.path.exists(f)])
     upload_zip_to_blob(zip_buffer, container_name_output, blob_name, connection_string)
     download_url = generate_sas_token(container_name_output, blob_name, account_name, account_key)
 
@@ -360,4 +359,17 @@ def queue_trigger(msg: func.QueueMessage):
                     file_paths.append(manifest['rtss'])
             delete_uploaded_files(container_name_input, file_paths, connection_string)
 
-    logging.info(f'Done with patient {manifest["patient_ID"]}. download_url = {download_url}')
+    logger.info(f'Done with patient {manifest["patient_ID"]}. download_url = {download_url}')
+
+    try:
+        with open(LOG_NAME, "rb") as data:
+            upload_to_blob(
+                container_name=container_name_output,
+                blob_name=LOG_NAME,
+                data=data,
+                connection_string=connection_string
+            )
+
+        logger_config.remove_file_handler(logger, LOG_NAME)
+    except Exception as e:
+        logger.exception(f"Error uploading log file: {e}")

@@ -1,0 +1,13 @@
+models:
+  - name: "UNetMidROI"
+    path: "models/decent-sun-246.pt"
+    patch_size: [128, 128, 96]
+    centre_crop_size: [-1, -1, -1]
+  # - name: "UNetLargeROI"
+  #   path: "models/rosy-firebrand-95.pt"
+  #   patch_size: [216, 216, 32]
+  #   centre_crop_size: [-1, -1, -1]
+  # - name: "NestedFormer"
+  #   path: "models/stellar-valley-103.pt"
+  #   patch_size: [192, 192, 32]
+  #   centre_crop_size: [-1, -1, -1]
